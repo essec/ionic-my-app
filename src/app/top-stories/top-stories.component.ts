@@ -25,5 +25,4 @@ export class TopStoriesComponent implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
     }
   }
-
 }
