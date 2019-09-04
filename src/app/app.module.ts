@@ -11,10 +11,23 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { ServicesModule } from './services/services.module';
 
+import { AngularFireDatabaseModule } from '@angular/fire/database'
+import { AngularFireModule } from '@angular/fire';
+import { environment } from 'src/environments/environment';
+
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [
+    AppComponent
+  ],
   entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, ServicesModule],
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot(),
+    AppRoutingModule,
+    ServicesModule,
+    AngularFireDatabaseModule,
+    AngularFireModule.initializeApp(environment.firebase),
+  ],
   providers: [
     StatusBar,
     SplashScreen,
