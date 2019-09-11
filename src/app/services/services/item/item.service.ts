@@ -1,9 +1,10 @@
 
 import { Injectable } from '@angular/core';
 import { Observable, combineLatest } from 'rxjs';
+import * as isEqual from 'lodash.isequal';
 import { Items } from 'src/app/model/items';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +19,8 @@ export class ItemService {
       .valueChanges()
       .pipe(
         map(ids => ids.slice(offset, offset + limit)),
-        mergeMap((ids: any[]) => combineLatest(...(ids.map
-          (id => this.db.object('/v0/item/' + id).valueChanges())))),
+        distinctUntilChanged(isEqual),
+        map((ids: any[]) => ids.map(id => this.db.object('/v0/item/' + id).valueChanges())),
         map((items: any) => ({
           offset,
           limit,
