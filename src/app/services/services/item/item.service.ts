@@ -6,6 +6,12 @@ import { Items } from 'src/app/model/items';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { map, mergeMap, distinctUntilChanged } from 'rxjs/operators';
 
+export interface Query {
+  refresh?: boolean;
+  offset: number;
+  limit: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
