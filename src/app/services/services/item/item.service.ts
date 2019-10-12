@@ -1,7 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { Observable, combineLatest, Subject, merge } from 'rxjs';
-import * as isEqual from 'lodash.isequal';
+// import * as isEqual from 'lodash.isequal';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { filter, map, withLatestFrom, switchAll, skip, take } from 'rxjs/operators';
 import { Items } from 'src/app/model/items';
@@ -19,6 +19,8 @@ export interface Query {
 
 export class ItemService {
   private queries: Subject<Query>;
+  private rawItemIds: Observable<number[]>;
+  totalItem = 0;
 
   constructor(private db: AngularFireDatabase) {
     this.queries = new Subject<Query>();
@@ -29,19 +31,27 @@ export class ItemService {
   }
 
   get(): Observable<Items> {
-    const rawItemIds = this.db.list<number>('/v0/topstories')
+    this.rawItemIds = this.db.list<number>('/v0/topstories')
       .valueChanges();
+    this.rawItemIds.subscribe(ids => {
+      this.totalItem = ids.length;
+    });
     const itemIds = combineLatest(
-      rawItemIds,
+      this.rawItemIds,
       this.queries
     ).pipe(
       filter(([ids, query]) => query.refresh),
       map(([ids, query]) => ids)
     );
-    const selector = ({offset, limit}, ids) => 
+    const selector = ({ refresh = false, offset, limit }, ids) =>
       combineLatest(...(ids.slice(offset, offset + limit)
-        .map(id => this.db.object<Item>('/v0/item/' + id)
-        .valueChanges()))
+        .map(id => this.db.object<Item>('/v0/item/' + id).valueChanges()))
+      ).pipe(
+        map(items => ({
+          refresh,
+          total: this.totalItem,
+          results: items
+        }))
       ) as Observable<Items>;
 
     return merge(

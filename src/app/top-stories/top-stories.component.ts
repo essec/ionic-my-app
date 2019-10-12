@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Items } from '../model/items';
 import { Subscription } from 'rxjs';
+import { concat } from 'lodash';
 import { ItemService } from '../services/services/item/item.service';
 
 @Component({
@@ -14,12 +15,33 @@ export class TopStoriesComponent implements OnInit, OnDestroy {
   private subscription: Subscription;
   private offset = 0;
   private limit = 10;
+  private infiniteScrollComponent: any;
+  private refresherComponent: any;
+
   constructor(private itemService: ItemService) { }
 
   ngOnInit() {
     this.subscription = this.itemService.get().subscribe(items
-    => this.items = items);
+      => {
+        if (items.refresh) {
+          this.items = items;
+          this.notifyRefreshComplete();
+        } else {
+          this.items = {
+            ...this.items,
+            results: concat(this.items.results, items.results)
+          };
+          this.notifyScrollComplete();
+        }
+      });
     this.doLoad(true);
+  }
+
+  load(event) {
+    this.infiniteScrollComponent = event.target;
+    if (this.hasNext()) {
+      this.next();
+    }
   }
 
   ngOnDestroy() {
@@ -28,34 +50,22 @@ export class TopStoriesComponent implements OnInit, OnDestroy {
     }
   }
 
-  doLoad(refresh: boolean) {
-    this.itemService.load({
-      offset: this.offset,
-      limit: this.limit,
-      refresh,
-    });
-    this.offset += this.limit;
-  }
+  // doLoad(refresh: boolean) {
+  //   this.itemService.load({
+  //     offset: this.offset,
+  //     limit: this.limit,
+  //     refresh,
+  //   });
+  //   this.offset += this.limit;
+  // }
 
-    // tslint:disable-next-line: adjacent-overload-signatures
+  // tslint:disable-next-line: adjacent-overload-signatures
   private doLoad(refresh: boolean) {
     this.itemService.load({
       offset: this.offset,
       limit: this.limit,
       refresh,
     });
-  }
-
-  hasPrevious(): boolean {
-    return this.offset > 0;
-  }
-
-  previous(): void {
-    if (!this.hasPrevious()) {
-      return;
-    }
-    this.offset -= this.limit;
-    this.doLoad(false);
   }
 
   hasNext(): boolean {
@@ -74,11 +84,26 @@ export class TopStoriesComponent implements OnInit, OnDestroy {
     return this.items != null;
   }
 
-  refresh() {
-    if (!this.canRefresh()) {
-      return;
+  refresh(event) {
+    this.refresherComponent = event.target;
+    if (this.canRefresh()) {
+      this.doRefresh();
     }
+  }
+
+  doRefresh() {
     this.offset = 0;
     this.doLoad(true);
+  }
+
+  private notifyScrollComplete(): void {
+    if (this.infiniteScrollComponent) {
+      this.infiniteScrollComponent.complete();
+    }
+  }
+  private notifyRefreshComplete(): void {
+    if (this.refresherComponent) {
+      this.refresherComponent.complete();
+    }
   }
 }
