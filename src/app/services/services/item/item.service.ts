@@ -1,10 +1,11 @@
 
 import { Injectable } from '@angular/core';
-import { Observable, combineLatest, Subject } from 'rxjs';
+import { Observable, combineLatest, Subject, merge } from 'rxjs';
 import * as isEqual from 'lodash.isequal';
-import { Items } from 'src/app/model/items';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { map, mergeMap, distinctUntilChanged } from 'rxjs/operators';
+import { filter, map, withLatestFrom, switchAll, skip, take } from 'rxjs/operators';
+import { Items } from 'src/app/model/items';
+import { Item } from 'src/app/model/item';
 
 export interface Query {
   refresh?: boolean;
@@ -27,20 +28,31 @@ export class ItemService {
     this.queries.next(query);
   }
 
-  // get(): Observable<Items>;
-  // load(offset: number, limit: number): Observable<Items> {
-  //   return this.db.list('/v0/topstories')
-  //     .valueChanges()
-  //     .pipe(
-  //       map(ids => ids.slice(offset, offset + limit)),
-  //       distinctUntilChanged(isEqual),
-  //       map((ids: any[]) => ids.map(id => this.db.object('/v0/item/' + id).valueChanges())),
-  //       map((items: any) => ({
-  //         offset,
-  //         limit,
-  //         total: limit,
-  //         results: items,
-  //       }))
-  //     );
-  // }
+  get(): Observable<Items> {
+    const rawItemIds = this.db.list<number>('/v0/topstories')
+      .valueChanges();
+    const itemIds = combineLatest(
+      rawItemIds,
+      this.queries
+    ).pipe(
+      filter(([ids, query]) => query.refresh),
+      map(([ids, query]) => ids)
+    );
+    const selector = ({offset, limit}, ids) => 
+      combineLatest(...(ids.slice(offset, offset + limit)
+        .map(id => this.db.object<Item>('/v0/item/' + id)
+        .valueChanges()))
+      ) as Observable<Items>;
+
+    return merge(
+      combineLatest(this.queries, itemIds).pipe(
+        map(([query, ids]) => selector(query, ids).
+        pipe(take(1)))
+      ),
+      this.queries.pipe(
+        skip(1),
+        withLatestFrom(itemIds, selector)
+      )
+    ).pipe(switchAll());
+  }
 }
