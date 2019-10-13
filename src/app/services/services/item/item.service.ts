@@ -36,6 +36,15 @@ export class ItemService {
     this.rawItemIds.subscribe(ids => {
       this.totalItem = ids.length;
     });
+    // const loadings = this.queries.pipe(
+    //   filter(v => v.refresh),
+    //   map(query => ({
+    //     loading: true,
+    //     offset: query.offset,
+    //     limit: query.limit,
+    //     results: []
+    //   }))
+    // );
     const itemIds = combineLatest(
       this.rawItemIds,
       this.queries
@@ -53,7 +62,10 @@ export class ItemService {
           results: items
         }))
       ) as Observable<Items>;
-
+    
+    // return merge(
+    //   loadings, items
+    // )
     return merge(
       combineLatest(this.queries, itemIds).pipe(
         map(([query, ids]) => selector(query, ids).
