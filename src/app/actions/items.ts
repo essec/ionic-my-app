@@ -1,4 +1,5 @@
 import { Action } from '@ngrx/store';
+import { Item } from '../model/item';
 
 export enum ItemActionTypes {
   Load = '[Item] Load',
@@ -15,7 +16,7 @@ export class Load implements Action {
 export class LoadSuccess implements Action {
   readonly type = ItemActionTypes.LoadSuccess;
 
-  constructor(public payload: number[]) { }
+  constructor(public payload: Item[]) { }
 }
 
 export class LoadFail implements Action {
