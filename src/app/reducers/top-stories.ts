@@ -1,5 +1,5 @@
 export interface State {
-    ids: number[];
-    loading: boolean;
-    error?: any;
+  ids: number[];
+  loading: boolean;
+  error?: any;
 }
