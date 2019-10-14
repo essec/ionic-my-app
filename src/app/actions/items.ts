@@ -1,27 +1,27 @@
 import { Action } from '@ngrx/store';
 
 export enum ItemActionTypes {
-    Load = '[Item] Load',
-    LoadSuccess = '[Items] Load Success',
-    LoadFail = '[Items] Load Fail',
+  Load = '[Item] Load',
+  LoadSuccess = '[Items] Load Success',
+  LoadFail = '[Items] Load Fail',
 }
 
 export class Load implements Action {
-    readonly type = ItemActionTypes.Load;
+  readonly type = ItemActionTypes.Load;
 
-    constructor(public payload: number[]) {}
+  constructor(public payload: number[]) { }
 }
 
 export class LoadSuccess implements Action {
-    readonly type = ItemActionTypes.LoadSuccess;
+  readonly type = ItemActionTypes.LoadSuccess;
 
-    constructor(public payload: number[]) {}
+  constructor(public payload: number[]) { }
 }
 
 export class LoadFail implements Action {
-    readonly type = ItemActionTypes.LoadFail;
+  readonly type = ItemActionTypes.LoadFail;
 
-    constructor(public payload: any) {}
+  constructor(public payload: any) { }
 }
 
 export type ItemActions = Load | LoadSuccess | LoadFail;
