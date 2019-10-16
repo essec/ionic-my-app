@@ -9,6 +9,9 @@ import { TimeAgoPipe } from './time-ago.pipe';
   declarations: [TimeAgoPipe],
   imports: [
     CommonModule
+  ],
+  exports: [
+    TimeAgoPipe
   ]
 })
 export class ComponentsModule { }
