@@ -39,3 +39,9 @@ export function reducer(
     }
   }
 }
+
+export const getIds = (state: State) => state.ids;
+
+export const getLoading = (state: State) => state.loading;
+
+export const getError = (state: State) => state.error;
