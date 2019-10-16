@@ -5,11 +5,11 @@
     </ion-toolbar>
   </ion-header>
   <ion-content padding>
-    <ion-refresher slot="fixed" [disabled]="!canRefresh()" (ionRefresh)="refresh($event)">
+    <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
       <ion-refresher-content></ion-refresher-content>
     </ion-refresher>
-    <app-items [items]="items.results" *ngIf="items"></app-items>
-    <ion-infinite-scroll [disabled]="!hasNext()" (ionInfinite)="load($event)">
+    <app-items [items]="items$ | async"></app-items>
+    <ion-infinite-scroll (ionInfinite)="load($event)">
       <ion-infinite-scroll-content></ion-infinite-scroll-content>
     </ion-infinite-scroll>
   </ion-content>

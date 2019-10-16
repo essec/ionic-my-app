@@ -1,4 +1,5 @@
-import * as fromRoot from '../../reducers/';
+// import * as fromRoot from '../../reducers/';
+import * as fromRoot from '../../reducers/items';
 import * as fromTopStories from './top-stories';
 import * as fromPagination from './pagination';
 import * as fromItems from '../../reducers/items';
@@ -48,8 +49,7 @@ export const getDisplayItems = createSelector(
   getPaginationState,
   (ids, entities, pagination) => {
     return {
-      results: ids.slice(0, pagination.offset + pagination.
-        limit).map(id => entities[id]),
+      results: ids.slice(0, pagination.offset + pagination.limit).map(id => entities[id]),
     };
   }
 );

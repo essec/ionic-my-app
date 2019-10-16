@@ -1,7 +1,7 @@
 import { Item } from '../model/item';
 import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
 import { ItemActions, ItemActionTypes } from '../actions/items';
-import { createFeatureSelector } from '@ngrx/store';
+import { createFeatureSelector, createSelector } from '@ngrx/store';
 
 export interface State extends EntityState<Item> {
   loading: boolean;
@@ -13,21 +13,28 @@ export const adapter: EntityAdapter<Item> = createEntityAdapter<Item>({
   sortComparer: false,
 });
 
-export const initalState: State = adapter.getInitialState({
+export const initialState: State = adapter.getInitialState({
   loading: false,
   error: null,
 });
 
 export function reducer(
-  state = initalState,
+  state = initialState,
   action: ItemActions,
 ): State {
   switch (action.type) {
     case ItemActionTypes.Load: {
       return {
-        ...this.state,
+        ...state,
         loading: true,
       };
+    }
+    case ItemActionTypes.LoadSuccess: {
+      return adapter.upsertMany(action.payload, {
+        ...state,
+        loading: false,
+        error: null,
+      });
     }
     case ItemActionTypes.LoadFail: {
       return {
@@ -51,3 +58,13 @@ export const {
 export const getLoading = (state: State) => state.loading;
 
 export const getError = (state: State) => state.error;
+
+export const isItemsLoading = createSelector(
+  getItemsState,
+  getLoading,
+);
+
+export const getItemsError = createSelector(
+  getItemsState,
+  getError,
+);
