@@ -8,7 +8,7 @@ import { mergeMap, take, map, catchError } from 'rxjs/operators';
 import { Item } from '../model/item';
 
 @Injectable()
-export class ItemEffects {
+export class ItemsEffects {
   constructor(
     private actions$: ActionsSubject,
     private db: AngularFireDatabase
